@@ -66,17 +66,4 @@ object TemplateParser {
     * @return Either a message describing a parse error, or a list of tokens.
     */
   def apply(text: String): Either[String, NonEmptyList[Token]] = parser.parseOnly(text).either
-
-  // println(parser.parseOnly("aaa {b} aaa aaaa{test:arg} ds {test(1):what} {test(1,2):what}").either)
-  // println("\nfunction")
-  // println(function.parseOnly("hello").either)
-  // println(function.parseOnly("hello(1)").either)
-  // println(function.parseOnly("hello(1, 2)").either)
-  // println("\nfunctionWithParameters")
-  // println(functionWithParameters.parseOnly("hello").either)
-  // println(functionWithParameters.parseOnly("hello(1)").either)
-  // println(functionWithParameters.parseOnly("hello(1, 2)").either)
-  // println("\nparameterList")
-  // println(parameterList.parseOnly("a").either)
-  // println(parameterList.parseOnly("a,   b").either)
 }
