@@ -3,6 +3,7 @@ package com.github.tinybarks.rpgcharbot
 import cats.data.{NonEmptyList, ValidatedNel}
 import cats._
 import cats.implicits._
+import com.github.tinybarks.rpgcharbot.Util.Chance
 
 import scala.util.{Failure, Random, Success, Try}
 
@@ -52,7 +53,16 @@ object TemplateEngine {
   def interpretFunction(te: TemplateEngine, templateName: String, fn: Function, rest: String): InterpretResult =
     fn match {
       case Function("pick", List()) =>
-        interpretRest(te, templateName, Random.shuffle(rest.split(',').seq).headOption.getOrElse("???"))
+        interpretRest(te, templateName,
+          Random.shuffle(rest.split(',').seq).headOption.getOrElse("???")
+        )
+
+      case Function("maybe", List(Chance(chance))) =>
+        if (Random.nextDouble() < chance) {
+          interpretRest(te, templateName, rest)
+        } else {
+          "".validNel
+        }
 
       case f@Function(_, _) =>
         s"[$f]".validNel
