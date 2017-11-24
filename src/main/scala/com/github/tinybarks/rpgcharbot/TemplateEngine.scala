@@ -36,6 +36,7 @@ object TemplateEngine {
     te.templates.get(templateName)
       .toValidNel(s"Couldn't find template '$templateName'!")
       .andThen(t => interpret(te, templateName, t))
+      .map(text => text.replaceAll(" {2,}", " "))
 
   def interpret(te: TemplateEngine, templateName: String, template: Template): InterpretResult =
     template.map {
@@ -56,6 +57,12 @@ object TemplateEngine {
         interpretRest(te, templateName,
           Random.shuffle(rest.split(',').seq).headOption.getOrElse("???")
         )
+
+      //case Function("even-pick", List()) =>
+      //  val x = rest.split(',').map {
+      //    case wl if wl.startsWith("$") => wl
+      //  }.
+
 
       case Function("maybe", List(Chance(chance))) =>
         if (Random.nextDouble() < chance) {
