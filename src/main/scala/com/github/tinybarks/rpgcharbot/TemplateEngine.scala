@@ -51,6 +51,7 @@ object TemplateEngine {
     }
 
   // TODO make random implicit arg
+  @SuppressWarnings(Array("org.wartremover.warts.EitherProjectionPartial"))
   def interpretFunction(te: TemplateEngine, templateName: String, fn: Function, rest: String): InterpretResult =
     fn match {
       case Function("pick", List()) =>
@@ -58,11 +59,45 @@ object TemplateEngine {
           Random.shuffle(rest.split(',').seq).headOption.getOrElse("???")
         )
 
-      //case Function("even-pick", List()) =>
-      //  val x = rest.split(',').map {
-      //    case wl if wl.startsWith("$") => wl
-      //  }.
+      case Function("even-pick", List()) =>
+        val wordLists = rest.split(',').toList.map {
+          case wl if wl.startsWith("$") =>
+            val wordListName = wl.substring(1)
+            te.wordLists.get(wordListName) match {
+              case Some(wordList) => Right((wordListName, wordList))
+              case None => Left(s"Invalid wordlist $wl")
+            }
 
+          case other => Left(s"invalid argument: $other")
+        }
+
+        wordLists.separate match {
+          case (errors@(_::_), _)   =>
+            val details = errors.mkString(", ")
+            s"Encountered invalid 'even-pick' arguments in '$templateName': $details".invalidNel
+
+          case (List(), lists) =>
+            // looks complicated, but all it does is to take the seq of (name, wordlist) and turn it into something like
+            // (0, ("list1", List(a, b, c, d, e)))
+            // (5, ("list2", List(d, e)))
+            // (7, ("list3", List(d, e, f)))
+            // think of one of these high striker games: the numbers are the different rankings and if you hit the
+            // thing hard enough (rng) you get a toy corresponding to the rank above the strength you've achieved
+            val start = List[(Int, (String, Seq[String]))]((0, lists.head))
+            val rankings = lists.tail.foldLeft(start) { (withIndex, el) =>
+              (withIndex.head._1 + withIndex.head._2._2.length, el) :: withIndex
+            }
+
+            // now that we have rankings, we can make a weighted pick which gives us pickedWl = Some((name, list))
+            val highestPossibleScore = lists.map(_._2.length).sum
+            val score = Random.nextInt(highestPossibleScore)
+            val pickedWl = rankings.find { case (rank, _) => score >= rank }.map(_._2)
+
+            pickedWl match {
+              case Some((name, wordList)) => interpretWordList(te, templateName, name, wordList)
+              case None => "Failed even-pick weighted random pick, this should not happen.".invalidNel
+            }
+        }
 
       case Function("maybe", List(Chance(chance))) =>
         if (Random.nextDouble() < chance) {
@@ -94,16 +129,18 @@ object TemplateEngine {
   def interpretWordList(te: TemplateEngine, templateName: String, wordListName: String): InterpretResult =
     te.wordLists.get(wordListName)
       .toValidNel(s"Couldn't find wordlist '$wordListName' referenced in '$templateName'.")
-      .andThen { wl =>
-        val entry = Random.shuffle(wl).headOption.getOrElse("[empty wordlist!]")
+      .andThen(wl => interpretWordList(te, templateName, wordListName, wl))
 
-        parse(entry)
-          .map(t => interpret(te, s"wordlist '$wordListName' ($entry)", t)) match {
-          case Left(parseFail) => s"Failed to parse entry '$entry' in wordlist '$wordListName': $parseFail".invalidNel
-          case Right(interpretedWord) => interpretedWord
-        }
-      }
+  // TODO make random implicit arg
+  def interpretWordList(te: TemplateEngine, templateName: String, wordListName: String, wordList: Seq[String]): InterpretResult = {
+    val entry = Random.shuffle(wordList).headOption.getOrElse("[empty wordlist!]")
 
+    parse(entry)
+      .map(t => interpret(te, s"wordlist '$wordListName' ($entry)", t)) match {
+      case Left(parseFail) => s"Failed to parse entry '$entry' in wordlist '$wordListName': $parseFail".invalidNel
+      case Right(interpretedWord) => interpretedWord
+    }
+  }
 
   // val testTemplate = parse("Hello {$names}! I wish you a {maybe(20%):$superlative} {pick:nice,great} day! {#salutation}").right.get
   // val testTemplate2 = parse("(This text in brackets from another template!)").right.get
