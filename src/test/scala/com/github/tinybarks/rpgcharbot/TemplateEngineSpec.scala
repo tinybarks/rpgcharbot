@@ -5,12 +5,7 @@ import org.specs2.matcher.{BeOneOf, MatchResult}
 import org.specs2.mutable._
 
 object TemplateEngineSpec extends Specification {
-  // you expected tests here?
-  // haaaa...
-  // if only i would feel like writing them...
-  // (￣﹃￣)
-
-  implicit class TemplateEngineWithAdd(engine: TemplateEngine) {
+implicit class TemplateEngineWithAdd(engine: TemplateEngine) {
     def addTemplate(templateName: String, template: String): TemplateEngine = {
       // will blow up if something goes wrong
       val parsed = TemplateEngine.parse(template).right.get
