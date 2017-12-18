@@ -146,25 +146,4 @@ object TemplateEngine {
       case Right(interpretedWord) => interpretedWord
     }
   }
-
-  // val testTemplate = parse("Hello {$names}! I wish you a {maybe(20%):$superlative} {pick:nice,great} day! {#salutation}").right.get
-  // val testTemplate2 = parse("(This text in brackets from another template!)").right.get
-  // val te = TemplateEngine(
-  //   wordLists = Map(
-  //     "names" -> Seq("Kate", "Gapow", "VoxSomniator", "caff", "Gyro", "trashbyte"),
-  //     "test" -> Seq("hello", "world"),
-  //     "cool_exclamation" -> Seq("Cool!", "Awesome!", "Epic!", "Splendid!")
-  //   ),
-  //   templates = Map(
-  //     "testTemplate" -> testTemplate,
-  //     "salutation" -> testTemplate2,
-  //   )
-  // )
-  //
-  // Seq(
-  //   interpret(te, "testTemplate"),
-  //   interpret(te, "testTemplate"),
-  //   interpret(te, "testTemplate"),
-  //   interpret(te, "testTemplate")
-  // ).foreach(println)
 }
