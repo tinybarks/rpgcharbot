@@ -50,8 +50,10 @@ object TemplateEngine {
       case Escape(None, rest) => interpretRest(te, templateName, rest)
     }
 
-  // TODO make random implicit arg
-  @SuppressWarnings(Array("org.wartremover.warts.EitherProjectionPartial"))
+  // TODO(tinybarks): make random implicit arg
+  // TODO(tinybarks): remove wartremover traversableops warning (this should be refactored and the suppresswarning put
+  //                  on the specific fn that needs it)
+  @SuppressWarnings(Array("org.wartremover.warts.EitherProjectionPartial", "org.wartremover.warts.TraversableOps"))
   def interpretFunction(te: TemplateEngine, templateName: String, fn: Function, rest: String): InterpretResult =
     fn match {
       case Function("pick", List()) =>
@@ -105,6 +107,9 @@ object TemplateEngine {
         } else {
           "".validNel
         }
+
+      case Function("capitalize", List()) =>
+        interpretRest(te, templateName, rest).map(_.capitalize)
 
       case f@Function(_, _) =>
         s"[$f]".validNel
