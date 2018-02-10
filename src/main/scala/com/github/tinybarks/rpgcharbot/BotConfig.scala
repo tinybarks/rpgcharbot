@@ -11,7 +11,7 @@ import TemplateEngine.{TemplateMap, WordLists}
 /**
   * Holds the bot's configuration.
   */
-case class BotConfig(instance: String, token: String, wordLists: WordLists, templateMap: TemplateMap)
+case class BotConfig(instance: String, token: String, discordToken: Option[String], wordLists: WordLists, templateMap: TemplateMap)
 
 /**
   * Holds the bot's configuration.
@@ -43,7 +43,7 @@ object BotConfig {
         case (name, Right(t)) => (name, t)
       }
 
-  private case class ApplicationConf(instance: String, token: String)
+  private case class ApplicationConf(instance: String, token: String, discordToken: Option[String])
 
   private lazy val config: ApplicationConf =
     load[ApplicationConf]("conf/application.conf")
@@ -54,5 +54,5 @@ object BotConfig {
   /**
     * Retrieves the bot's configuration.
     */
-  def apply(): BotConfig = BotConfig(config.instance, config.token, wordLists, templateMap)
+  def apply(): BotConfig = BotConfig(config.instance, config.token, config.discordToken, wordLists, templateMap)
 }
