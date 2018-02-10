@@ -36,7 +36,7 @@ object DiscordMain extends App with LazyLogging {
       val chan = event.getMessage.getChannel
       if (isMentioned && chan.getId == "382923477310767104") {
         val te = templateEngineWithName(event.getAuthor.getName)
-        val templ = TemplateEngine.interpret(te, "test")
+        val templ = TemplateEngine.interpret(te, "final_message")
         logger.info(templ.toString)
         logger.info(event.getGuild.getId)
         templ.map { result =>

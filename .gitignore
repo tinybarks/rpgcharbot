@@ -75,6 +75,3 @@ fabric.properties
 .idea
 conf/application.conf
 
-# temporarily hide changes to wordlists
-conf/templates.conf
-conf/words.conf
