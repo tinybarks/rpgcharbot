@@ -39,7 +39,13 @@ object Mastodon {
       .map(n => Mention(
         n.getId,
         Option(n.getStatus).map(_.getId).getOrElse(0L),
-        Option(n.getAccount).map(_.getDisplayName).getOrElse(""),
+        Option(n.getAccount).map { acc =>
+          if (acc.getDisplayName.trim.isEmpty) {
+            acc.getUserName
+          } else {
+            acc.getDisplayName
+          }
+        }.getOrElse(""),
         Option(n.getAccount).map("@" + _.getAcct).getOrElse(""),
         Option(n.getStatus).map(_.getContent).map(Util.stripTags).getOrElse(""),
       ))
