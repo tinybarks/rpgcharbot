@@ -10,7 +10,8 @@ import net.dv8tion.jda.core.hooks.{EventListener, ListenerAdapter}
 
 import scala.collection.JavaConverters._
 
-@SuppressWarnings(Array("org.wartremover.warts.Var", "org.wartremover.warts.NonUnitStatements", "org.wartremover.warts.TraversableOps"))
+@SuppressWarnings(Array("org.wartremover.warts.Var", "org.wartremover.warts.NonUnitStatements",
+  "org.wartremover.warts.TraversableOps", "org.wartremover.warts.Throw"))
 object DiscordMain extends App with LazyLogging {
   val config = BotConfig()
 

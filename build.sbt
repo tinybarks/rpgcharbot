@@ -16,5 +16,6 @@ libraryDependencies ++= Seq(
   "com.github.pureconfig"          %% "pureconfig"      % "0.8.0",
   "org.tpolecat"                   %% "atto-core"       % "0.6.1-M7",
   "org.specs2"                     %% "specs2-core"     % "4.0.1" % "test",
-  "net.dv8tion"                    %  "JDA"             % "3.3.1_306"
+  "net.dv8tion"                    %  "JDA"             % "3.3.1_306",
+  "com.vdurmont"                   %  "emoji-java"      % "4.0.0"
 )

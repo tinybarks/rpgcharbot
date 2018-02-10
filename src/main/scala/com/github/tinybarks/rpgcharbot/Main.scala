@@ -1,9 +1,12 @@
 package com.github.tinybarks.rpgcharbot
 
 import cats._
+import cats.data._
+import cats.data.Validated._
 import cats.implicits._
 import cats.effect.IO
 import com.typesafe.scalalogging.LazyLogging
+import com.vdurmont.emoji.EmojiParser
 import fs2._
 
 import scala.concurrent.ExecutionContext
@@ -41,11 +44,21 @@ object Main extends App with LazyLogging {
       .through(toA)
       .flatMap { m =>
         logger.info(s"Received mention: $m")
-        sendStatus(m.statusId.some, s"${m.username} hello ${m.displayName}, you said: ${m.content}")
+        val te = templateEngineWithName(m.displayName)
+        val result = TemplateEngine.interpret(te, "final_message")
+        logger.info(result.toString)
+        result match {
+          case Valid(reply) =>
+            val replyWithEmoji = EmojiParser.parseToUnicode(reply)
+            sendStatus(m.statusId.some, s"${m.username}\n$replyWithEmoji")
+          case Invalid(errors) =>
+            val message = "Failed to post update:\n" + errors.toList.mkString("\n")
+            logger.error(message)
+            Stream.emit(message)
+        }
       }
-    _ = success.left.map(e => logger.error("Failed to post update: ", e))
   } yield ()
 
-  logger.info("Starting to poll for notifications...")
+  logger.info(s"Starting to poll for notifications on ${config.instance}...")
   program.run.unsafeRunSync()
 }
